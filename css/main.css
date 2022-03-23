@@ -1,27 +1,27 @@
-
 body {
-    /* background-color: black;
+  /* background-color: black;
     color: white; */
-    text-align: center;
+  text-align: center;
 }
 /* table{
     table-layout: fixed;
 } */
 
-table, th, td {
-    border:1px solid black;
-    margin: auto;
-  }
-
-td{
-    white-space: pre;
-    width: 20px;
-    height: 209x;
-    
+table,
+th,
+td {
+  border: 1px solid black;
+  margin: auto;
 }
 
-.hide{
-    width: 20px;
-    height: 209x;
-    background-color: black;
+td {
+  white-space: pre;
+  width: 20px;
+  height: 209x;
+}
+
+.hide {
+  width: 20px;
+  height: 209x;
+  background-color: black;
 }

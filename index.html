@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/main.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/main.css" />
     <title>Mine Sweeper</title>
-</head>
-<body onload="initGame()" oncontextmenu="return false">
+  </head>
+  <body onload="initGame()" oncontextmenu="return false">
     <h1>Mine Sweeper</h1>
-    
-    <div class="game-counter"><span></span></div>
-    <table  >
-        <tbody class="board" ></tbody>
+    <div class="hearts">Hearts:<span></span></div>
+    <br />
+    <div class="hints">Hints: <span></span></div>
+    <br />
+    <div class="game-counter">Counter:<span></span></div>
+    <table>
+      <tbody class="board"></tbody>
     </table>
 
     <script src="js/Game.js"></script>
     <script src="js/util.js"></script>
-</body>
+  </body>
 </html>
