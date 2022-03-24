@@ -99,7 +99,7 @@ function renderCell(location, value) {
 
 function renderBoard(board) {
   var strHTML = "";
-
+  //Fordebug
   console.log("board", board);
   for (var i = 0; i < board.length; i++) {
     strHTML += "<tr>\n";
@@ -187,18 +187,18 @@ function resetAll() {
 
   var size = 'width="40px" height="40px"';
   var elbtnHeart = document.querySelector(".hearts .oneHr");
-  elbtnHeart.innerHTML = `<img src="assets/LifeOn.svg" ` + size + `/>`;
+  elbtnHeart.innerHTML = `<img src="assets/lifeOn.svg" ` + size + `/>`;
   elbtnHeart = document.querySelector(".hearts .twoHr");
-  elbtnHeart.innerHTML = `<img src="assets/LifeOn.svg" ` + size + `/>`;
+  elbtnHeart.innerHTML = `<img src="assets/lifeOn.svg" ` + size + `/>`;
   elbtnHeart = document.querySelector(".hearts .threeHr");
-  elbtnHeart.innerHTML = `<img src="assets/LifeOn.svg" ` + size + `/>`;
+  elbtnHeart.innerHTML = `<img src="assets/lifeOn.svg" ` + size + `/>`;
 
   var elBtnHint = document.querySelector(".hints .oneHi");
-  elBtnHint.innerHTML = `<img src="assets/HintOn.svg" ` + size + `/>`;
+  elBtnHint.innerHTML = `<img src="assets/hintOn.svg" ` + size + `/>`;
   elBtnHint = document.querySelector(".hints .twoHi");
-  elBtnHint.innerHTML = `<img src="assets/HintOn.svg" ` + size + `/>`;
+  elBtnHint.innerHTML = `<img src="assets/hintOn.svg" ` + size + `/>`;
   elBtnHint = document.querySelector(".hints .threeHi");
-  elBtnHint.innerHTML = `<img src="assets/HintOn.svg" ` + size + `/>`;
+  elBtnHint.innerHTML = `<img src="assets/hintOn.svg" ` + size + `/>`;
 
   var elGameCounter = document.querySelector(".game-counter span");
   elGameCounter.innerText = gGame.secsPassed.toString().padStart(3, "0");
@@ -303,23 +303,19 @@ function handelSafeClick() {
       }
     }
 
-    console.log("safeClicks", safeClicks);
     var selectedCell = getRandomInt(0, safeClicks.length - 1);
-    console.log("selectedCell", selectedCell);
     var cellI = safeClicks[selectedCell].i;
     var cellJ = safeClicks[selectedCell].j;
     var currCell = gBoard[cellI][cellJ];
     gBoard[cellI][cellJ].isShown = true;
     if (currCell.minesAroundCount === 0) {
       renderCell({ i: cellI, j: cellJ }, EMPTY);
-      console.log("cellI", cellI, "- cellJ", cellJ);
       removeClassName({ i: cellI, j: cellJ });
     } else {
       renderCell(
         { i: cellI, j: cellJ },
         `<img src="assets/${currCell.minesAroundCount}.svg" width="40%" height="40%"/>`
       );
-      console.log("cellI", cellI, "- cellJ", cellJ);
       removeClassName({ i: cellI, j: cellJ });
     }
     gLocation = { i: cellI, j: cellJ };

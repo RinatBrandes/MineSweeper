@@ -32,8 +32,9 @@ var gLocation;
 
 const MINE_IMG =
   '<img src="assets/mine.svg"  alt="mine img" width="50%" height="50%">';
-const FLAG_IMG =
-  '<img src="assets/safeFlag.svg"  alt="mine img" width="50%" height="50%">';
+const FLAG_IMG = `<img src="assets/safeFlag.svg" width="50%" height="50%"/>`;
+// '<img src="assets/mine.svg"  alt="mine img" width="50%" height="50%">';
+// '<img src="assets/safeFlag.svg"  alt="mine img" width="50%" height="50%">';
 const EMPTY = "";
 const LEFT_BUTTON = 0;
 const RIGHT_BUTTON = 2;
@@ -53,9 +54,9 @@ function buildBoard() {
 
 function cellClicked(cellI, cellJ, clickType) {
   //if in the begining they press the hint the nest clicked is not the first any more
+  
   if (!gGame.isOn && gGame.shownCount === 0 && gHints.qty === 3) {
     if (gHints.isOn) {
-      
       expendCell(cellI, cellJ, clickType.button);
       gHints.isOn = false;
     } else {
@@ -63,10 +64,18 @@ function cellClicked(cellI, cellJ, clickType) {
       setStartGame();
     }
   } else {
-    if (clickType.button === RIGHT_BUTTON) handelRightClick(cellI, cellJ);
-    if (clickType.button === RIGHT_BUTTON && !gBoard[cellI][cellJ].isShown && !gBoard[cellI][cellJ].isMine)
+    // if (clickType.button === RIGHT_BUTTON) handelRightClick(cellI, cellJ);
+
+    if (
+      clickType.button === RIGHT_BUTTON &&
+      !gBoard[cellI][cellJ].isShown &&
+      !gBoard[cellI][cellJ].isMine
+    ) {
       handelRightClick(cellI, cellJ);
-    handelLeftClick(cellI, cellJ, clickType.button);
+    } else {
+      handelLeftClick(cellI, cellJ, clickType.button);
+    }
+
     checkEndGame();
   }
 }
@@ -96,7 +105,7 @@ function setFirstClick(cellI, cellJ, clickType) {
 function handelLeftClick(cellI, cellJ, clickType) {
   if (!gBoard[cellI][cellJ].isShown) {
     if (gHints.isOn && clickType === LEFT_BUTTON) {
-      debugger
+      
       expendCell(cellI, cellJ, clickType);
 
       gHints.isOn = false;
@@ -111,6 +120,7 @@ function handelLeftClick(cellI, cellJ, clickType) {
           //i dont know if when i press first mine i need only to open him or around
           // renderCell({ i: cellI, j: cellJ }, MINE_IMG);
           // removeClassName({ i: cellI, j: cellJ });
+          
           renderAround(cellI, cellJ, MINE_IMG);
           if (gHearts === 0) {
             minesEndGame({ i: cellI, j: cellJ }, MINE_IMG);
@@ -128,7 +138,6 @@ function handelLeftClick(cellI, cellJ, clickType) {
 }
 
 function expendCell(cellI, cellJ) {
-  
   showHintsNeighbors(gBoard, cellI, cellJ);
 }
 
@@ -147,9 +156,9 @@ function handelHearts() {
   } else {
     selector = ".threeHr";
   }
-  console.log("selector", selector);
+
   var elBtnImg = document.querySelector(selector);
-  console.log("elBtnImg", elBtnImg);
+
   elBtnImg.innerHTML = `<span><img src="assets/life.svg" width="40px" height="40px"/>`;
 }
 
@@ -167,7 +176,6 @@ function handelHints() {
   }
   gHints.qty--;
   gHints.isOn = true;
-  console.log("gHints.isOn", gHints.isOn);
 
   var elBtnImg = document.querySelector(selector);
   elBtnImg.innerHTML = `<span><img src="assets/hint.svg" width="40px" height="40px"/>`;
@@ -226,13 +234,13 @@ function checkEndGame() {
 function setEndGame(msg) {
   gGame.isOn = false;
   var elEndMsg = document.querySelector(".usr-msg");
-  console.log("elEndMsg", elEndMsg);
+
   elEndMsg.innerText = msg;
   clearInterval(gGameInterval);
 }
 
 function handelRightClick(cellI, cellJ) {
-  debugger
+  
   if (!gGame.isOn) gGame.isOn = true;
   if (gBoard[cellI][cellJ].isMarked) {
     gBoard[cellI][cellJ].isMarked = false;
@@ -241,15 +249,11 @@ function handelRightClick(cellI, cellJ) {
   } else {
     gBoard[cellI][cellJ].isMarked = true;
     gGame.markedCounte++;
-    console.log('cellI',cellI );
-    console.log('cellJ', cellJ);
     var elCell = document.querySelector(`.cell-${cellI}-${cellJ}`);
-    console.log('elCell',elCell );
-    console.log('FLAG_IMG', FLAG_IMG);
-    elCell.innerHTML = FLAG_IMG;
-    // renderCell({ i: cellI, j: cellJ }, FLAG_IMG);
-    console.log('handle right click - else');
     handelMineLeft(gGame.markedCounte);
+    elCell.innerHTML = FLAG_IMG;
+    // elCell.innerHTML = FLAG_IMG;
+    // renderCell({ i: cellI, j: cellJ }, FLAG_IMG);
   }
 }
 
