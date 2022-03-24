@@ -4,21 +4,114 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/flexboxgrid.min.css" />
     <title>Mine Sweeper</title>
   </head>
+
   <body onload="initGame()" oncontextmenu="return false">
     <h1>Mine Sweeper</h1>
-    <div class="hearts">Hearts:<span></span></div>
-    <br />
-    <div class="hints">Hints: <span></span></div>
-    <br />
-    <div class="game-counter">Counter:<span></span></div>
-    <table>
-      <tbody class="board"></tbody>
-    </table>
-
+    <div class="row">
+      <!-- First column -->
+      <div class="levels buttons col-xs-3">
+        <!-- Helpers -->
+        <div class="row center-xs">
+          <img
+            class="btn btn-safe"
+            src="assets/Shield.svg"
+            width="50px"
+            height="50px"
+            onclick="handelSafeClick()"
+          />
+          <img
+            class="btn"
+            src="assets/hintBtn.svg"
+            width="50px"
+            height="50px"
+            onclick="handelHints()"
+          />
+          <!--  <img src="assets/Undo.svg" width="75px" height="75px" onclick=""> -->
+        </div>
+        <!-- Levels -->
+        <button class="beginner" value="beginner" onclick="handelLevel(this)">
+          Beginner (4 * 4)
+        </button>
+        <br />
+        <label class="beginner-lbl">Best score: <span></span></label> <br />
+        <button class="medium" value="medium" onclick="handelLevel(this)">
+          Medium (8 * 8)
+        </button> <br />
+        <label class="medium-lbl">Best score: <span></span></label> <br />
+        <button class="expert" value="export" onclick="handelLevel(this)">
+          Expert (12 * 12)
+        </button>
+        <br />
+        <label class="expert-lbl">Best score: <span></span></label>
+      </div>
+      <!-- Second column -->
+      <div class="col-xs-6">
+        <!-- Stats -->
+        <div class="row around-xs">
+          <!-- Hints Icons -->
+          <div class="hints">
+            <span class="oneHi"
+              ><img src="assets/HintOn.svg" width="40px" height="40px"
+            /></span>
+            <span class="twoHi"
+              ><img src="assets/HintOn.svg" width="40px" height="40px"
+            /></span>
+            <span class="threeHi"
+              ><img src="assets/HintOn.svg" width="40px" height="40px"
+            /></span>
+          </div>
+          <!-- Reset Game -->
+          <div class="toggle-game" onclick="initGame()">
+            <span
+              ><img src="assets/happy.svg" width="50px" height="50px"
+            /></span>
+          </div>
+          <!-- Hearts Icons -->
+          <div class="hearts">
+            <span class="oneHr"
+              ><img src="assets/LifeOn.svg" width="40px" height="40px"
+            /></span>
+            <span class="twoHr"
+              ><img src="assets/LifeOn.svg" width="40px" height="40px"
+            /></span>
+            <span class="threeHr"
+              ><img src="assets/LifeOn.svg" width="40px" height="40px"
+            /></span>
+          </div>
+        </div>
+        <!-- Game Board -->
+        <table>
+          <tbody class="board"></tbody>
+        </table>
+      </div>
+      <!-- Third column -->
+      <div class="col-xs-3">
+        <!-- Time -->
+        <div class="space">
+          <div class="game-counter label"><span>0</span></div>
+          <br />
+          Counter
+        </div>
+        <!-- Mines Left -->
+        <div class="space">
+          <div class="mines-left label"><span>2</span></div>
+          <br />
+          Mines left
+        </div>
+        <!-- End Game Message -->
+        <div class="usr-msg"></div>
+      </div>
+    </div>
     <script src="js/Game.js"></script>
     <script src="js/util.js"></script>
+    <footer class="footer">&#169;2022 - Brandes Rinat</footer>
   </body>
 </html>
