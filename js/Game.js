@@ -31,9 +31,9 @@ var gSafeClick = 3;
 var gLocation;
 
 const MINE_IMG =
-  '<img src="/assets/mine.svg"  alt="mine img" width="50%" height="50%">';
+  '<img src="assets/mine.svg"  alt="mine img" width="50%" height="50%">';
 const FLAG_IMG =
-  '<img src="/assets/safeFlag.svg"  alt="mine img" width="50%" height="50%">';
+  '<img src="assets/safeFlag.svg"  alt="mine img" width="50%" height="50%">';
 const EMPTY = "";
 const LEFT_BUTTON = 0;
 const RIGHT_BUTTON = 2;
@@ -232,7 +232,7 @@ function setEndGame(msg) {
 }
 
 function handelRightClick(cellI, cellJ) {
-  
+  debugger
   if (!gGame.isOn) gGame.isOn = true;
   if (gBoard[cellI][cellJ].isMarked) {
     gBoard[cellI][cellJ].isMarked = false;
