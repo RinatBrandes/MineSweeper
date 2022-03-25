@@ -25,29 +25,29 @@
             src="assets/shield.svg"
             width="50px"
             height="50px"
-            onclick="handelSafeClick()"
+            onclick="setSafeClick()"
           />
           <img
             class="btn"
             src="assets/hintBtn.svg"
             width="50px"
             height="50px"
-            onclick="handelHints()"
+            onclick="setHints()"
           />
           <!--  <img src="assets/undo.svg" width="75px" height="75px" onclick=""> -->
         </div>
         <!-- Levels -->
-        <button class="beginner" value="beginner" onclick="handelLevel(this)">
+        <button class="beginner" value="beginner" onclick="setLevel(this)">
           Beginner (4 * 4)
         </button>
         <br />
         <label class="beginner-lbl">Best score: <span></span></label> <br />
-        <button class="medium" value="medium" onclick="handelLevel(this)">
+        <button class="medium" value="medium" onclick="setLevel(this)">
           Medium (8 * 8)
         </button>
         <br />
         <label class="medium-lbl">Best score: <span></span></label> <br />
-        <button class="expert" value="export" onclick="handelLevel(this)">
+        <button class="expert" value="export" onclick="setLevel(this)">
           Expert (12 * 12)
         </button>
         <br />
@@ -97,9 +97,9 @@
       <div class="col-xs-3">
         <!-- Time -->
         <div class="space">
-          <div class="game-counter label"><span>0</span></div>
+          <div class="game-score label"><span>0</span></div>
           <br />
-          Counter
+          Score
         </div>
         <!-- Mines Left -->
         <div class="space">

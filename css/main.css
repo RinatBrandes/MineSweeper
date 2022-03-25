@@ -113,10 +113,11 @@ label .beginner {
 .footer {
   background-color: rgba(0, 0, 0, 0.25);
   color: #eeeeee;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
   clear: both;
   text-align: center;
-  line-height: 60px;
+  line-height: 40px;
+  font-size: 20px;
 }
