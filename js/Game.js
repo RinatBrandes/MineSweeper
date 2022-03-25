@@ -1,12 +1,5 @@
 "use strict";
-//ToDo:
-//set the right order for the function
-//see if there is ant duplicate function
-//remove the "
-//change the size of the bord accourding to the mat size
-//footer - there is problem with left
-//the safe button is not finish, he is not showing the number and there isnt number for the user
-//something happend to the hint
+
 var gBoard;
 var gGame = {
   isOn: false,
@@ -18,7 +11,6 @@ var gLevel = {
   size: 4,
   mines: 2,
 };
-var gGameCounter = 0;
 var gGameInterval = 0;
 var gHearts = 3;
 var gHints = {
@@ -27,14 +19,15 @@ var gHints = {
 };
 var gHintsTimeout;
 var gHintNeighbors;
-var gSafeClick = 3;
+var gSafeClick = {
+  qty: 3,
+  isOn: false,
+};
+var gSafeClickTimeOut;
 var gLocation;
 
-const MINE_IMG =
-  '<img src="assets/mine.svg"  alt="mine img" width="50%" height="50%">';
+const MINE_IMG = '<img src="assets/mine.svg" width="50%" height="50%">';
 const FLAG_IMG = `<img src="assets/safeFlag.svg" width="50%" height="50%"/>`;
-// '<img src="assets/mine.svg"  alt="mine img" width="50%" height="50%">';
-// '<img src="assets/safeFlag.svg"  alt="mine img" width="50%" height="50%">';
 const EMPTY = "";
 const LEFT_BUTTON = 0;
 const RIGHT_BUTTON = 2;
@@ -42,38 +35,68 @@ const RIGHT_BUTTON = 2;
 function initGame() {
   resetAll();
   gBoard = buildBoard();
-  gBoard = setMineNegsCount(gBoard);
+  gBoard = getMineNegsCount(gBoard);
   renderBoard(gBoard);
 }
 
 function buildBoard() {
   var board = createMat(gLevel.size);
-  board = randomMine(board, gLevel.mines);
+  board = getRandomMine(board, gLevel.mines);
   return board;
 }
 
+function renderBoard(board) {
+  var strHTML = "";
+  //Fordebug
+  console.log("board", board);
+  for (var i = 0; i < board.length; i++) {
+    strHTML += "<tr>\n";
+    for (var j = 0; j < board[0].length; j++) {
+      var currCell = board[i][j];
+      var cellClass = getClassName({ i: i, j: j });
+      cellClass += " hide";
+      strHTML +=
+        '\t<td class="cell ' +
+        cellClass +
+        '"  onclick="cellClicked(' +
+        i +
+        "," +
+        j +
+        ',event)" onContextMenu="cellClicked(' +
+        i +
+        "," +
+        j +
+        ',event)">\n<span>';
+
+      if (currCell.minesAroundCount === 0) EMPTY;
+
+      strHTML += "</span>\t</td>\n";
+    }
+    strHTML += "</tr>\n";
+  }
+  var elBoard = document.querySelector(".board");
+  elBoard.innerHTML = strHTML;
+}
+
 function cellClicked(cellI, cellJ, clickType) {
-  //if in the begining they press the hint the nest clicked is not the first any more
-  
+  var buttonType = clickType.button;
+  //if in the begining they press the hint the next clicked is not the first any more
+  //if the didn't start and there are no open cell and
   if (!gGame.isOn && gGame.shownCount === 0 && gHints.qty === 3) {
     if (gHints.isOn) {
-      expendCell(cellI, cellJ, clickType.button);
+      expendHintsCells(cellI, cellJ, buttonType);
       gHints.isOn = false;
     } else {
-      setFirstClick(cellI, cellJ, clickType.button);
+      setFirstClick(cellI, cellJ, buttonType);
       setStartGame();
     }
   } else {
-    // if (clickType.button === RIGHT_BUTTON) handelRightClick(cellI, cellJ);
-
-    if (
-      clickType.button === RIGHT_BUTTON &&
-      !gBoard[cellI][cellJ].isShown &&
-      !gBoard[cellI][cellJ].isMine
-    ) {
-      handelRightClick(cellI, cellJ);
+    //If its not first click on handel right or left click
+    //if right and the currCell is not shown and its not mine
+    if (buttonType === RIGHT_BUTTON && !gBoard[cellI][cellJ].isShown) {
+      setRightClick(cellI, cellJ);
     } else {
-      handelLeftClick(cellI, cellJ, clickType.button);
+      setLeftClick(cellI, cellJ, buttonType);
     }
 
     checkEndGame();
@@ -92,44 +115,74 @@ function setFirstClick(cellI, cellJ, clickType) {
       clickType === LEFT_BUTTON &&
       currCellClicked.minesAroundCount > 0
     ) {
+      //if the current cell is number
       renderAround(cellI, cellJ, getCellHtml(currCellClicked.minesAroundCount));
     } else if (clickType === RIGHT_BUTTON) {
-      handelRightClick(cellI, cellJ);
+      //if right click
+      setRightClick(cellI, cellJ);
     } else {
+      //the first click is ok and we are rendering around
       renderAround(cellI, cellJ, EMPTY);
     }
   }
   gGame.isOn = true;
 }
 
-function handelLeftClick(cellI, cellJ, clickType) {
-  if (!gBoard[cellI][cellJ].isShown) {
-    if (gHints.isOn && clickType === LEFT_BUTTON) {
-      
-      expendCell(cellI, cellJ, clickType);
+function firstClick(board, cellI, cellJ) {
+  //if first click search for new empty cell
+  var cell = board[cellI][cellJ];
+  var emptyLocations = [];
 
+  emptyLocations = getEmptyLocations(board);
+  var emptyLocation = getRandomEmptyLocation(emptyLocations);
+  return emptyLocation;
+}
+
+function setRightClick(cellI, cellJ) {
+  if (gBoard[cellI][cellJ].isMarked) {
+    gBoard[cellI][cellJ].isMarked = false;
+    renderCell({ i: cellI, j: cellJ }, EMPTY);
+    gGame.markedCounte--;
+    //setMineLeft(1);
+  } else {
+    gBoard[cellI][cellJ].isMarked = true;
+    gGame.markedCounte++;
+    //      setMineLeft(gGame.markedCounte);
+    renderCell({ i: cellI, j: cellJ }, FLAG_IMG);
+  }
+}
+
+function setLeftClick(cellI, cellJ, buttonType) {
+  if (!gBoard[cellI][cellJ].isShown) {
+    //if we are in hints mode //and left click
+    if (gHints.isOn) {
+      // && buttonType === LEFT_BUTTON) {
+
+      expendHintsCells(cellI, cellJ, buttonType);
       gHints.isOn = false;
     } else {
       var currCell = gBoard[cellI][cellJ];
+      //If the is mine and we are not in hints mode
       if (currCell.isMine && !gHints.isOn) {
+        //we check if there any hearts left
         if (gHearts > 0) {
           //still can open main
-          handelHearts();
-          handelMineLeft(1);
+          currCell.isShown = true;
+          setHearts();
+          setMineLeft(1);
 
           //i dont know if when i press first mine i need only to open him or around
-          // renderCell({ i: cellI, j: cellJ }, MINE_IMG);
-          // removeClassName({ i: cellI, j: cellJ });
-          
-          renderAround(cellI, cellJ, MINE_IMG);
-          if (gHearts === 0) {
-            minesEndGame({ i: cellI, j: cellJ }, MINE_IMG);
-          }
+          // renderAround(cellI, cellJ, MINE_IMG);
+          renderCell({ i: cellI, j: cellJ }, MINE_IMG);
+          removeClassName({ i: cellI, j: cellJ });
+          if (gHearts === 0) minesEndGame({ i: cellI, j: cellJ }, MINE_IMG);
         } else {
           minesEndGame({ i: cellI, j: cellJ }, MINE_IMG);
         }
+        //if the cell in number
       } else if (currCell.minesAroundCount > 0) {
         renderAround(cellI, cellJ, getCellHtml(currCell.minesAroundCount));
+        //if the cell is empty
       } else if (currCell.minesAroundCount === 0) {
         renderAround(cellI, cellJ, EMPTY);
       }
@@ -137,34 +190,24 @@ function handelLeftClick(cellI, cellJ, clickType) {
   }
 }
 
-function expendCell(cellI, cellJ) {
-  showHintsNeighbors(gBoard, cellI, cellJ);
-}
-
-function handelMineLeft(num) {
-  var elMinesLeft = document.querySelector(".mines-left span");
-  elMinesLeft.innerText = gLevel.mines - num;
-}
-
-function handelHearts() {
-  gHearts--;
-
-  if (gHearts === 2) {
+function setHearts() {
+  if (gHearts === 3) {
     var selector = ".oneHr";
-  } else if (gHearts === 1) {
+  } else if (gHearts === 2) {
     selector = ".twoHr";
   } else {
     selector = ".threeHr";
   }
+  gHearts--;
 
   var elBtnImg = document.querySelector(selector);
-
   elBtnImg.innerHTML = `<span><img src="assets/life.svg" width="40px" height="40px"/>`;
 }
 
-function handelHints() {
+function setHints() {
+  var selector;
   if (gHints.qty === 3) {
-    var selector = ".oneHi";
+    selector = ".oneHi";
   } else if (gHints.qty === 2) {
     selector = ".twoHi";
   } else if (gHints.qty === 1) {
@@ -179,172 +222,4 @@ function handelHints() {
 
   var elBtnImg = document.querySelector(selector);
   elBtnImg.innerHTML = `<span><img src="assets/hint.svg" width="40px" height="40px"/>`;
-}
-
-function minesEndGame(location, value) {
-  var endGameMsg = "You lose the game";
-  var elGameBtn = document.querySelector(".toggle-game span");
-  var sad = `<span><img src="assets/sad.svg" width="50px" height="50px"/></span>`;
-  elGameBtn.innerHTML = sad;
-  setEndGame(endGameMsg);
-  renderCell({ i: location.i, j: location.j }, value);
-  expandAllMine();
-}
-
-function renderAround(cellI, cellJ, value) {
-  gBoard[cellI][cellJ].isShown = true;
-  if (!gHints.isOn) gGame.shownCount++;
-
-  renderCell({ i: cellI, j: cellJ }, value);
-  removeClassName({ i: cellI, j: cellJ });
-
-  if (
-    !gBoard[cellI][cellJ].isMine ||
-    (gBoard[cellI][cellJ].isMine && gHints.isOn)
-  )
-    handelNeighbors({ i: cellI, j: cellJ });
-}
-
-function checkEndGame() {
-  var cellQtyNeeded = Math.pow(gLevel.size, 2);
-  var flagsQty = 0;
-  var tmpHeartsCount = 3 - gHearts;
-  for (var i = 0; i < gBoard.length; i++) {
-    for (var j = 0; j < gBoard[0].length; j++) {
-      //if mine and flag on it or if (mine and shown and used qty of hearts
-      if (
-        (gBoard[i][j].isMine && gBoard[i][j].isMarked) ||
-        gBoard[i][j].isShown ||
-        (gBoard[i][j].isMine && gBoard[i][j].isShown && tmpHeartsCount > 0)
-      ) {
-        flagsQty += 1;
-        tmpHeartsCount--;
-      }
-    }
-  }
-
-  if (cellQtyNeeded === flagsQty) {
-    console.log("End game");
-    updateBestScore();
-    var endGameMsg = "You win the game";
-    setEndGame(endGameMsg);
-  }
-}
-
-function setEndGame(msg) {
-  gGame.isOn = false;
-  var elEndMsg = document.querySelector(".usr-msg");
-
-  elEndMsg.innerText = msg;
-  clearInterval(gGameInterval);
-}
-
-function handelRightClick(cellI, cellJ) {
-  
-  if (!gGame.isOn) gGame.isOn = true;
-  if (gBoard[cellI][cellJ].isMarked) {
-    gBoard[cellI][cellJ].isMarked = false;
-    renderCell({ i: cellI, j: cellJ }, EMPTY);
-    handelMineLeft(1);
-  } else {
-    gBoard[cellI][cellJ].isMarked = true;
-    gGame.markedCounte++;
-    var elCell = document.querySelector(`.cell-${cellI}-${cellJ}`);
-    handelMineLeft(gGame.markedCounte);
-    elCell.innerHTML = FLAG_IMG;
-    // elCell.innerHTML = FLAG_IMG;
-    // renderCell({ i: cellI, j: cellJ }, FLAG_IMG);
-  }
-}
-
-function openEmptyLocation(location) {
-  removeClassName(location);
-
-  //mark the new location
-  gBoard[location.i][location.j].isShown = true;
-  if (!gHints.isOn) gGame.shownCount++;
-  handelNeighbors(location);
-}
-
-function removeClassName(location) {
-  var className = getClassName(location);
-  var elCell = document.querySelector(`.${className}`);
-  elCell.classList.remove("hide");
-}
-
-function addClassName(location = gLocation) {
-  var className = getClassName(location);
-  var elCell = document.querySelector(`.${className}`);
-  elCell.classList.add("hide");
-}
-
-function handelNeighbors(location) {
-  var neighbors = [];
-  neighbors = searchNeighbors(gBoard, location.i, location.j);
-
-  if (neighbors) {
-    openNeighbors(neighbors);
-  } else {
-    var currCell = gBoard[location.i][location.j];
-    if (currCell.minesAroundCount > 0) {
-      renderCell(
-        { i: location.i, j: location.j },
-        getCellHtml(currCell.minesAroundCount)
-      );
-    } else {
-      renderCell(location, EMPTY);
-    }
-  }
-}
-
-function openNeighbors(neighbors) {
-  for (var i = 0; i < neighbors.length; i++) {
-    var neighboeCellI = neighbors[i].i;
-    var neighboeCellJ = neighbors[i].j;
-    var neighbor = gBoard[neighboeCellI][neighboeCellJ];
-
-    if (!gHints.isOn) neighbor.isShown = true;
-    if (!gHints.isOn) gGame.shownCount++;
-
-    if (neighbor.isMine && gHints.isOn) {
-      renderCell({ i: neighboeCellI, j: neighboeCellJ }, MINE_IMG);
-      removeClassName({ i: neighboeCellI, j: neighboeCellJ });
-    } else if (neighbor.minesAroundCount === 0) {
-      renderCell({ i: neighboeCellI, j: neighboeCellJ }, EMPTY);
-      removeClassName({ i: neighboeCellI, j: neighboeCellJ });
-    } else {
-      renderCell(
-        { i: neighboeCellI, j: neighboeCellJ },
-        `<img src="assets/${neighbor.minesAroundCount}.svg" width="40%" height="40%"/>`
-      );
-      removeClassName({ i: neighboeCellI, j: neighboeCellJ });
-    }
-  }
-}
-
-function getCellHtml(num) {
-  return `<img src="assets/${num}.svg" width="40%" height="40%"/>`;
-}
-
-function firstClick(board, cellI, cellJ) {
-  //if first click search for new empty cell
-  var cell = board[cellI][cellJ];
-  var emptyLocations = [];
-
-  if (cell.isMine) {
-    emptyLocations = getEmptyLocations(board);
-    var emptyLocation = getRandomEmptyLocation(emptyLocations);
-    return emptyLocation;
-  }
-}
-
-function setStartGame() {
-  handelMineLeft(0);
-  gGameInterval = setInterval(startGameCounter, 1000);
-}
-
-function startGameCounter() {
-  gGame.secsPassed++;
-  var elGameCounter = document.querySelector(".game-counter span");
-  elGameCounter.innerText = gGame.secsPassed.toString().padStart(3, "0");
 }
