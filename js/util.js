@@ -159,7 +159,7 @@ function startGameCounter() {
 }
 
 //Hints
-//if the game didnt start i allow to open hints
+//if the game didnt start i'm not allowing safe mode
 function expendHintsCells(cellI, cellJ) {
   showNeighborsHints(gBoard, cellI, cellJ);
 }
@@ -311,7 +311,7 @@ function setLevel(el) {
 }
 
 //safe mode
-//if the game didnt start i'm not allowing safe mode - to show diff capabilities
+//if the game didnt start i'm not allowing safe mode
 function setSafeClick() {
   var safeClicks = [];
   if (!gGame.isOn){
@@ -377,10 +377,10 @@ function undoSafeClick(location = gLocation) {
 
 //end game
 function checkEndGame() {
+  
   var cellQtyNeeded = Math.pow(gLevel.size, 2);
 
   if (cellQtyNeeded - gLevel.mines === gGame.shownCount) {
-    console.log('End game');
     updateBestScore();
     var endGameMsg = 'You win the game';
     setEndGame(endGameMsg);

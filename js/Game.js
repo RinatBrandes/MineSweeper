@@ -148,6 +148,7 @@ function firstClick(board, cellI, cellJ) {
 }
 
 function setRightClick(cellI, cellJ) {
+  if(!gGame.isOn) return;
   if (gBoard[cellI][cellJ].isMarked) {
     gBoard[cellI][cellJ].isMarked = false;
     renderCell({ i: cellI, j: cellJ }, EMPTY);
@@ -162,6 +163,7 @@ function setRightClick(cellI, cellJ) {
 }
 
 function setLeftClick(cellI, cellJ, buttonType) {
+  if(!gGame.isOn) return;
   if (!gBoard[cellI][cellJ].isShown) {
     //if we are in hints mode //and left click
     if (gHints.isOn) {
@@ -215,6 +217,11 @@ function setHearts() {
 }
 
 function setHints() {
+  if (!gGame.isOn){
+    var msg = 'The game didn\'t start';
+    setUserMsg(msg);
+    return;
+  }
   var selector;
   if (gHints.qty === 3) {
     selector = ".oneHi";
