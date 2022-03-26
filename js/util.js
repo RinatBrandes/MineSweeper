@@ -379,13 +379,25 @@ function undoSafeClick(location = gLocation) {
 function checkEndGame() {
   
   var cellQtyNeeded = Math.pow(gLevel.size, 2);
-
-  if (cellQtyNeeded - gLevel.mines === gGame.shownCount) {
+  var mineCounter = countMine();
+  if (cellQtyNeeded  === gGame.shownCount + mineCounter) {
     updateBestScore();
     var endGameMsg = 'You win the game';
     setEndGame(endGameMsg);
   }
 }
+
+function countMine(){
+  var counter = 0;
+  for(var i = 0;i<gBoard.length;i++){
+    for(var j=0;j<gBoard[0].length;j++){
+      if(gBoard[i][j].isMine && gBoard[i][j].isShown) counter++;
+      if(gBoard[i][j].isMine && gBoard[i][j].isMarked) counter++;
+    }
+  }
+  return counter;
+}
+
 
 function minesEndGame(location, value) {
   var endGameMsg = 'You lose the game';
