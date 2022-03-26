@@ -21,6 +21,13 @@
         <!-- Helpers -->
         <div class="row center-xs">
           <img
+            class="btn"
+            src="assets/undo.svg"
+            width="50px"
+            height="50px"
+            onclick="setUndo()"
+          />
+          <img
             class="btn btn-safe"
             src="assets/shield.svg"
             width="50px"
@@ -34,7 +41,6 @@
             height="50px"
             onclick="setHints()"
           />
-          <!--  <img src="assets/undo.svg" width="75px" height="75px" onclick=""> -->
         </div>
         <!-- Levels -->
         <button class="beginner" value="beginner" onclick="setLevel(this)">
@@ -58,7 +64,7 @@
         <!-- Stats -->
         <div class="row around-xs">
           <!-- Hints Icons -->
-          <div class="hints">
+          <div id="hints">
             <span class="oneHi"
               ><img src="assets/hintOn.svg" width="40px" height="40px"
             /></span>
@@ -72,11 +78,15 @@
           <!-- Reset Game -->
           <div class="toggle-game" onclick="initGame()">
             <span
-              ><img src="assets/happy.svg" width="50px" height="50px"
+              ><img
+                class="btn"
+                src="assets/happy.svg"
+                width="50px"
+                height="50px"
             /></span>
           </div>
           <!-- Hearts Icons -->
-          <div class="hearts">
+          <div id="hearts">
             <span class="oneHr"
               ><img src="assets/lifeOn.svg" width="40px" height="40px"
             /></span>
@@ -113,6 +123,7 @@
     </div>
     <script src="js/Game.js"></script>
     <script src="js/util.js"></script>
+    <script src="js/undo.js"></script>
     <footer class="footer">&#169;2022 - Brandes Rinat</footer>
   </body>
 </html>

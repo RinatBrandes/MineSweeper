@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var gBoard;
 var gGame = {
@@ -25,6 +25,10 @@ var gSafeClick = {
 };
 var gSafeClickTimeOut;
 var gLocation;
+var gMines = 0;
+var gUndos = [];
+var undoIsOn = false;
+var gUndoId = 1;
 
 const MINE_IMG = '<img src="assets/mine.svg" width="50%" height="50%">';
 const FLAG_IMG = `<img src="assets/safeFlag.svg" width="50%" height="50%"/>`;
@@ -49,11 +53,14 @@ function renderBoard(board) {
   var strHTML = "";
   //Fordebug
   console.log("board", board);
+
+  var tdSize = "";
   for (var i = 0; i < board.length; i++) {
     strHTML += "<tr>\n";
     for (var j = 0; j < board[0].length; j++) {
       var currCell = board[i][j];
-      var cellClass = getClassName({ i: i, j: j });
+      tdSize = ` td-${gLevel.size}`;
+      var cellClass = getClassName({ i: i, j: j }) + tdSize;
       cellClass += " hide";
       strHTML +=
         '\t<td class="cell ' +
@@ -66,7 +73,9 @@ function renderBoard(board) {
         i +
         "," +
         j +
-        ',event)">\n<span>';
+        ',event)"' +
+        tdSize +
+        ">\n<span>";
 
       if (currCell.minesAroundCount === 0) EMPTY;
 
@@ -143,12 +152,12 @@ function setRightClick(cellI, cellJ) {
     gBoard[cellI][cellJ].isMarked = false;
     renderCell({ i: cellI, j: cellJ }, EMPTY);
     gGame.markedCounte--;
-    //setMineLeft(1);
+    updateUndos(false, cellI, cellJ, "isMarked", true);
   } else {
     gBoard[cellI][cellJ].isMarked = true;
     gGame.markedCounte++;
-    //      setMineLeft(gGame.markedCounte);
     renderCell({ i: cellI, j: cellJ }, FLAG_IMG);
+    updateUndos(false, cellI, cellJ, "isMarked", false);
   }
 }
 
@@ -156,8 +165,6 @@ function setLeftClick(cellI, cellJ, buttonType) {
   if (!gBoard[cellI][cellJ].isShown) {
     //if we are in hints mode //and left click
     if (gHints.isOn) {
-      // && buttonType === LEFT_BUTTON) {
-
       expendHintsCells(cellI, cellJ, buttonType);
       gHints.isOn = false;
     } else {
@@ -168,13 +175,15 @@ function setLeftClick(cellI, cellJ, buttonType) {
         if (gHearts > 0) {
           //still can open main
           currCell.isShown = true;
+          gMines++;
+          setMineLeft();
           setHearts();
-          setMineLeft(1);
 
           //i dont know if when i press first mine i need only to open him or around
           // renderAround(cellI, cellJ, MINE_IMG);
           renderCell({ i: cellI, j: cellJ }, MINE_IMG);
           removeClassName({ i: cellI, j: cellJ });
+          updateUndos(false, cellI, cellJ, "isShown", false);
           if (gHearts === 0) minesEndGame({ i: cellI, j: cellJ }, MINE_IMG);
         } else {
           minesEndGame({ i: cellI, j: cellJ }, MINE_IMG);
@@ -182,6 +191,7 @@ function setLeftClick(cellI, cellJ, buttonType) {
         //if the cell in number
       } else if (currCell.minesAroundCount > 0) {
         renderAround(cellI, cellJ, getCellHtml(currCell.minesAroundCount));
+
         //if the cell is empty
       } else if (currCell.minesAroundCount === 0) {
         renderAround(cellI, cellJ, EMPTY);
@@ -201,7 +211,7 @@ function setHearts() {
   gHearts--;
 
   var elBtnImg = document.querySelector(selector);
-  elBtnImg.innerHTML = `<span><img src="assets/life.svg" width="40px" height="40px"/>`;
+  elBtnImg.innerHTML = `<img src="assets/life.svg" width="40px" height="40px"/>`;
 }
 
 function setHints() {
@@ -213,13 +223,13 @@ function setHints() {
   } else if (gHints.qty === 1) {
     selector = ".threeHi";
   } else {
-    var elMsg = document.querySelector(".usr-msg");
-    elMsg.innerText = "You are out of hints";
+    var msg = "You are out of hints";
+    setUserMsg(msg);
     return;
   }
   gHints.qty--;
   gHints.isOn = true;
-
+  updateUndos(false, 0, 0, "useHint", 1);
   var elBtnImg = document.querySelector(selector);
-  elBtnImg.innerHTML = `<span><img src="assets/hint.svg" width="40px" height="40px"/>`;
+  elBtnImg.innerHTML = `<img src="assets/hint.svg" width="40px" height="40px"/>`;
 }
